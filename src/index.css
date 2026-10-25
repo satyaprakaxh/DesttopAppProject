@@ -571,6 +571,31 @@ h1 {
   font-size: 0.72rem;
 }
 
+.timer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #111116;
+}
+
+.timer-card strong {
+  font-size: 0.95rem;
+}
+
+.timer-warning {
+  border-color: rgba(255, 105, 120, 0.7);
+  background: rgba(255, 105, 120, 0.08);
+}
+
+.timer-warning strong {
+  color: var(--red);
+}
+
 .exam-media-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
