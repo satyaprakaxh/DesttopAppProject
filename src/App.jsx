@@ -143,7 +143,10 @@ const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
     isFullscreen &&
     nameValid &&
     urnValid;
-
+const formattedTime = [
+  String(Math.floor(timeRemaining / 60)).padStart(2, '0'),
+  String(timeRemaining % 60).padStart(2, '0')
+].join(':');
   // Subscribe to actual fullscreen changes from Electron.
   useEffect(() => {
     if (!window.athenaAPI?.isFullscreen) {
@@ -177,7 +180,42 @@ const [answers, setAnswers] = useState({});
       unsubscribe?.();
     };
   }, []);
+useEffect(() => {
+  if (
+    currentView !== 'test' ||
+    examDeadline === null ||
+    submitted
+  ) {
+    return;
+  }
 
+  function updateTimer() {
+    const remaining = Math.max(
+      0,
+      Math.ceil((examDeadline - Date.now()) / 1000)
+    );
+
+    setTimeRemaining(remaining);
+
+    if (remaining === 0) {
+      submitTest('timeout');
+    }
+  }
+
+  // Update immediately, rather than waiting for the first interval.
+  updateTimer();
+
+  const intervalId = window.setInterval(updateTimer, 250);
+
+  return () => {
+    window.clearInterval(intervalId);
+  };
+}, [
+  currentView,
+  examDeadline,
+  submitted,
+  submitTest
+]);
   // Attach the camera stream to the video element.
   useEffect(() => {
   const video =
@@ -342,7 +380,20 @@ function handleSubmit(event) {
   }
 
   setCurrentQuestion(0);
-  setCurrentView('test');
+setAnswers({});
+
+setSubmitted(false);
+setSubmissionReason('');
+setShowSubmitConfirm(false);
+
+setTimeRemaining(EXAM_DURATION_SECONDS);
+
+setExamDeadline(
+  Date.now() + EXAM_DURATION_SECONDS * 1000
+);
+
+setCurrentView('test');
+
 }
 
  if (currentView === 'test') {
@@ -378,6 +429,15 @@ function handleSubmit(event) {
           <div className="answer-summary">
             <strong>{answeredCount} / {QUESTIONS.length}</strong>
             <span>Answered</span>
+            <div className={`timer-card ${
+                    timeRemaining <= 60 ? 'timer-warning' : ''
+                }`}
+                role="timer"
+                aria-label={`Time remaining: ${formattedTime}`}
+                >
+                <span>TIME REMAINING</span>
+                <strong>{formattedTime}</strong>
+                </div>
           </div>
         </div>
 
