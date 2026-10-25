@@ -1,0 +1,34 @@
+{
+  "name": "desktopproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "start": "electron electron/main.cjs",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/satyaprakaxh/DesttopAppProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/satyaprakaxh/DesttopAppProject/issues"
+  },
+  "homepage": "https://github.com/satyaprakaxh/DesttopAppProject#readme",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.0.0",
+    "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

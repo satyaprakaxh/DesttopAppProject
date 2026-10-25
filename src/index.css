@@ -1,0 +1,253 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f5f5f7;
+  background: #09090b;
+
+  --background: #09090b;
+  --panel: #111114;
+  --border: #29292f;
+  --text: #f5f5f7;
+  --muted: #92929e;
+  --accent: #ff2e78;
+  --green: #34d399;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% 35%, #19131b, transparent 65%),
+    var(--background);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 26px clamp(20px, 5vw, 76px) 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar,
+.brand,
+.system-status,
+.card-heading,
+.check-row,
+.phase-note,
+.footer {
+  display: flex;
+  align-items: center;
+}
+
+.topbar,
+.footer {
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.brand {
+  gap: 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+.brand-mark,
+.app-icon {
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.system-status {
+  gap: 9px;
+  color: var(--muted);
+  font-size: 0.67rem;
+  letter-spacing: 0.12em;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.hero {
+  width: min(760px, 100%);
+  margin: auto;
+  padding: 64px 0 48px;
+  text-align: center;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+}
+
+h1 {
+  margin: 20px 0 14px;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+}
+
+.subtitle {
+  max-width: 590px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.setup-card {
+  margin-top: 38px;
+  padding: 26px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #151519, #0e0e11);
+}
+
+.card-heading {
+  gap: 14px;
+  padding-bottom: 22px;
+}
+
+.app-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+}
+
+.heading-copy h2 {
+  margin: 0 0 5px;
+  font-size: 1rem;
+}
+
+.heading-copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.check-row {
+  gap: 12px;
+  padding: 17px 0;
+  border-top: 1px solid var(--border);
+}
+
+.check-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  border: 1px solid #315c4b;
+  border-radius: 50%;
+  color: var(--green);
+  font-size: 0.8rem;
+}
+
+.check-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.check-copy strong {
+  font-size: 0.86rem;
+}
+
+.check-copy span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.check-label {
+  color: var(--green);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.browser-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.phase-note {
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.phase-number {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.footer {
+  color: #676771;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 540px) {
+  .app-shell {
+    padding: 20px;
+  }
+
+  .system-status {
+    font-size: 0.55rem;
+  }
+
+  .hero {
+    padding: 52px 0;
+  }
+
+  .setup-card {
+    padding: 20px;
+  }
+
+  .check-row {
+    gap: 9px;
+  }
+
+  .check-label {
+    font-size: 0.58rem;
+  }
+
+  .footer {
+    font-size: 0.55rem;
+  }
+}
