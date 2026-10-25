@@ -1,4 +1,62 @@
 import { useEffect, useRef, useState } from 'react';
+const QUESTIONS = [
+  {
+    topic: 'Searching',
+    prompt:
+      'What is the worst-case time complexity of binary search on a sorted array?',
+    options: ['O(n)', 'O(log n)', 'O(n log n)', 'O(1)'],
+    correctIndex: 1,
+    explanation:
+      'Binary search halves the remaining search interval after each comparison.'
+  },
+  {
+    topic: 'Data Structures',
+    prompt: 'Which data structure follows the LIFO principle?',
+    options: ['Queue', 'Stack', 'Heap', 'Graph'],
+    correctIndex: 1,
+    explanation:
+      'LIFO means Last In, First Out, which is the defining behaviour of a stack.'
+  },
+  {
+    topic: 'Linked Lists',
+    prompt:
+      'Which technique is commonly used to detect a cycle in a linked list?',
+    options: [
+      'Binary search',
+      'Merge sort',
+      "Floyd's slow and fast pointers",
+      'Breadth-first search'
+    ],
+    correctIndex: 2,
+    explanation:
+      'Floyd’s cycle-finding algorithm advances two pointers at different speeds.'
+  },
+  {
+    topic: 'Binary Search Trees',
+    prompt:
+      'What does an inorder traversal of a binary search tree produce when its keys are distinct?',
+    options: [
+      'Keys in random order',
+      'Keys in ascending order',
+      'Only leaf nodes',
+      'Keys in insertion order'
+    ],
+    correctIndex: 1,
+    explanation:
+      'Inorder traversal visits the left subtree, node, then right subtree.'
+  },
+  {
+    topic: 'Graph Algorithms',
+    prompt:
+      'Which data structure is typically used to implement breadth-first search?',
+    options: ['Stack', 'Priority queue', 'Queue', 'Linked list only'],
+    correctIndex: 2,
+    explanation:
+      'A queue processes vertices in the order they are discovered.'
+  }
+];
+
+
 
 function describeMediaError(error, feature) {
   if (error?.name === 'NotAllowedError') {
@@ -77,7 +135,9 @@ function App() {
     if (!window.athenaAPI?.isFullscreen) {
       return;
     }
-
+const [currentView, setCurrentView] = useState('setup');
+const [currentQuestion, setCurrentQuestion] = useState(0);
+const [answers, setAnswers] = useState({});
     let mounted = true;
 
     window.athenaAPI
@@ -106,17 +166,27 @@ function App() {
 
   // Attach the camera stream to the video element.
   useEffect(() => {
-    if (cameraVideoRef.current) {
-      cameraVideoRef.current.srcObject = cameraStream;
-    }
-  }, [cameraStream]);
+  const video =
+    currentView === 'setup'
+      ? cameraVideoRef.current
+      : testCameraVideoRef.current;
+
+  if (video) {
+    video.srcObject = cameraStream;
+  }
+}, [cameraStream, currentView]);
 
   // Attach the screen stream to the video element.
-  useEffect(() => {
-    if (screenVideoRef.current) {
-      screenVideoRef.current.srcObject = screenStream;
-    }
-  }, [screenStream]);
+ useEffect(() => {
+  const video =
+    currentView === 'setup'
+      ? screenVideoRef.current
+      : testScreenVideoRef.current;
+
+  if (video) {
+    video.srcObject = screenStream;
+  }
+}, [screenStream, currentView]);x
 
   // Release camera resources when the stream changes or unmounts.
   useEffect(() => {
@@ -238,32 +308,35 @@ function App() {
     }
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
+function handleSubmit(event) {
+  event.preventDefault();
 
-    setErrorMessage('');
-    setSetupMessage('');
+  setErrorMessage('');
+  setSetupMessage('');
 
-    if (!nameValid || !urnValid) {
-      setNameTouched(true);
-      setUrnTouched(true);
-      return;
-    }
-
-    if (!cameraReady || !screenReady || !isFullscreen) {
-      setErrorMessage(
-        'Connect the camera, share the screen, and enter fullscreen first.'
-      );
-      return;
-    }
-
-    setSetupMessage(
-      `Setup verified for ${normalizedName}. The test screen will be connected in Phase 4.`
-    );
+  if (!nameValid || !urnValid) {
+    setNameTouched(true);
+    setUrnTouched(true);
+    return;
   }
 
+  if (!cameraReady || !screenReady || !isFullscreen) {
+    setErrorMessage(
+      'Connect the camera, share the screen, and enter fullscreen first.'
+    );
+    return;
+  }
+
+  setCurrentQuestion(0);
+  setCurrentView('test');
+}
+
+ if (currentView === 'test') {
+  const question = QUESTIONS[currentQuestion];
+  const answeredCount = Object.keys(answers).length;
+
   return (
-    <main className="app-shell">
+    <main className="app-shell exam-shell">
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark">A</div>
@@ -271,258 +344,219 @@ function App() {
         </div>
 
         <div className="system-status">
-          <span
-            className={`status-dot ${
-              canGoToTests ? 'status-dot-ready' : ''
-            }`}
-          />
-          {canGoToTests ? 'SYSTEM READY' : 'SETUP REQUIRED'}
+          <span className="status-dot" />
+          TEST IN PROGRESS
         </div>
       </header>
 
-      <section className="setup-page">
-        <p className="eyebrow">EXAM ENVIRONMENT VERIFICATION</p>
-
-        <h1>
-          {canGoToTests
-            ? 'You are ready to begin'
-            : 'Prepare your exam environment'}
-        </h1>
-
-        <p className="subtitle">
-          Verify your devices, enter your student details, and
-          switch to fullscreen before proceeding.
-        </p>
-
-        <div className="preview-grid">
-          <section className="preview-panel">
-            <div className="preview-heading">
-              <strong>Camera Preview</strong>
-              <span className={`pill ${cameraReady ? 'ready' : ''}`}>
-                {cameraReady ? 'CONNECTED' : 'NOT CONNECTED'}
-              </span>
-            </div>
-
-            <div className="preview-area">
-              <video
-                ref={cameraVideoRef}
-                className={`preview-video ${
-                  cameraReady ? 'visible' : ''
-                }`}
-                autoPlay
-                playsInline
-                muted
-              />
-
-              {!cameraReady && (
-                <div className="preview-placeholder">
-                  <div className="camera-symbol">CAM</div>
-                  <strong>Camera Preview</strong>
-                  <span>Camera not connected</span>
-                </div>
-              )}
-            </div>
-
-            <button
-              className={
-                cameraReady ? 'secondary-button' : 'primary-button'
-              }
-              onClick={cameraReady ? stopCamera : startCamera}
-              type="button"
-            >
-              {cameraReady ? 'Stop Camera' : 'Get Camera Permission'}
-            </button>
-          </section>
-
-          <section className="preview-panel">
-            <div className="preview-heading">
-              <strong>Screen Preview</strong>
-              <span className={`pill ${screenReady ? 'ready' : ''}`}>
-                {screenReady ? 'SHARING' : 'NOT SHARING'}
-              </span>
-            </div>
-
-            <div className="preview-area">
-              <video
-                ref={screenVideoRef}
-                className={`preview-video ${
-                  screenReady ? 'visible' : ''
-                }`}
-                autoPlay
-                playsInline
-                muted
-              />
-
-              {!screenReady && (
-                <div className="preview-placeholder">
-                  <div className="camera-symbol">SCR</div>
-                  <strong>Screen Preview</strong>
-                  <span>No display has been shared</span>
-                </div>
-              )}
-            </div>
-
-            <button
-              className={
-                screenReady ? 'secondary-button' : 'primary-button'
-              }
-              onClick={
-                screenReady ? stopScreenShare : startScreenShare
-              }
-              type="button"
-            >
-              {screenReady ? 'Stop Sharing' : 'Share Screen'}
-            </button>
-          </section>
-        </div>
-
-        <section className="student-card">
-          <div className="student-card-heading">
-            <h2>Student identification</h2>
-            <p>Enter the details associated with your college record.</p>
+      <section className="exam-page">
+        <div className="exam-heading">
+          <div>
+            <p className="eyebrow">DATA STRUCTURES & ALGORITHMS</p>
+            <h1>DSA Assessment</h1>
+            <p className="subtitle exam-subtitle">
+              Student: <strong>{normalizedName}</strong>
+              {' · '}
+              URN: <strong>{normalizedUrn}</strong>
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="field">
-                <label htmlFor="studentName">Full name</label>
-                <input
-                  id="studentName"
-                  name="studentName"
-                  autoComplete="name"
-                  value={studentName}
-                  onChange={(event) => {
-                    setStudentName(event.target.value);
-                    setSetupMessage('');
-                  }}
-                  onBlur={() => setNameTouched(true)}
-                  minLength={2}
-                  maxLength={80}
-                  required
-                  aria-invalid={nameTouched && !nameValid}
-                  placeholder="Enter your full name"
-                />
+          <div className="answer-summary">
+            <strong>{answeredCount} / {QUESTIONS.length}</strong>
+            <span>Answered</span>
+          </div>
+        </div>
 
-                {nameTouched && !nameValid && (
-                  <span className="field-error">
-                    Enter a name between 2 and 80 characters.
-                  </span>
-                )}
-              </div>
+        <div className="exam-media-row">
+          <div className="exam-media-card">
+            <span>CAMERA</span>
+            <video
+              ref={testCameraVideoRef}
+              autoPlay
+              playsInline
+              muted
+            />
+          </div>
 
-              <div className="field">
-                <label htmlFor="urn">University roll number (URN)</label>
-                <input
-                  id="urn"
-                  name="urn"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={urn}
-                  onChange={(event) => {
-                    setUrn(event.target.value);
-                    setSetupMessage('');
-                  }}
-                  onBlur={() => setUrnTouched(true)}
-                  minLength={3}
-                  maxLength={40}
-                  pattern="[A-Za-z0-9][A-Za-z0-9/_-]{2,39}"
-                  title="Use 3–40 characters: letters, numbers, slash, hyphen, or underscore."
-                  required
-                  aria-invalid={urnTouched && !urnValid}
-                  placeholder="Enter your URN"
-                />
+          <div className="exam-media-card">
+            <span>SCREEN SHARE</span>
+            <video
+              ref={testScreenVideoRef}
+              autoPlay
+              playsInline
+              muted
+            />
+          </div>
+        </div>
 
-                {urnTouched && !urnValid && (
-                  <span className="field-error">
-                    Enter a valid URN using the displayed format.
-                  </span>
-                )}
-              </div>
+        <div className="exam-layout">
+          <section className="question-card">
+            <div className="question-meta">
+              <span>
+                QUESTION {currentQuestion + 1} OF {QUESTIONS.length}
+              </span>
+
+              <span className="topic-label">{question.topic}</span>
             </div>
 
-            <div className="fullscreen-row">
-              <div className="fullscreen-copy">
-                <strong>Fullscreen mode</strong>
-                <span>
-                  {isFullscreen
-                    ? 'The desktop window is in fullscreen.'
-                    : 'Fullscreen is required before continuing.'}
-                </span>
-              </div>
+            <div className="progress-track">
+              <div
+                className="progress-fill"
+                style={{
+                  width: `${
+                    ((currentQuestion + 1) / QUESTIONS.length) * 100
+                  }%`
+                }}
+              />
+            </div>
 
+            <h2 className="question-prompt">
+              {question.prompt}
+            </h2>
+
+            <p className="option-instruction">
+              Select one answer.
+            </p>
+
+            <div className="options-list">
+              {question.options.map((option, index) => {
+                const selected = answers[currentQuestion] === index;
+
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    className={`option-button ${
+                      selected ? 'selected' : ''
+                    }`}
+                    aria-pressed={selected}
+                    onClick={() => {
+                      setAnswers((previous) => ({
+                        ...previous,
+                        [currentQuestion]: index
+                      }));
+                    }}
+                  >
+                    <span className="option-letter">
+                      {String.fromCharCode(65 + index)}
+                    </span>
+
+                    <span className="option-text">
+                      {option}
+                    </span>
+
+                    <span className="option-indicator" />
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="question-actions">
               <button
-                className="secondary-button fullscreen-button"
                 type="button"
-                onClick={toggleFullscreen}
+                className="secondary-button"
+                disabled={currentQuestion === 0}
+                onClick={() => {
+                  setCurrentQuestion((previous) => previous - 1);
+                }}
               >
-                {isFullscreen ? 'Exit Fullscreen' : 'Go Fullscreen'}
+                ← Previous
               </button>
-            </div>
 
-            <div className="requirements">
-              <span className={cameraReady ? 'requirement met' : 'requirement'}>
-                {cameraReady ? '✓' : '○'} Camera
+              <span className="page-counter">
+                {currentQuestion + 1} / {QUESTIONS.length}
               </span>
 
-              <span className={screenReady ? 'requirement met' : 'requirement'}>
-                {screenReady ? '✓' : '○'} Screen sharing
-              </span>
-
-              <span className={isFullscreen ? 'requirement met' : 'requirement'}>
-                {isFullscreen ? '✓' : '○'} Fullscreen
-              </span>
-
-              <span className={nameValid && urnValid ? 'requirement met' : 'requirement'}>
-                {nameValid && urnValid ? '✓' : '○'} Student details
-              </span>
-            </div>
-
-            {errorMessage && (
-              <div className="error-message" role="alert">
-                {errorMessage}
-              </div>
-            )}
-
-            {setupMessage && (
-              <div className="success-message" role="status">
-                {setupMessage}
-              </div>
-            )}
-
-            <div className="continue-area">
               <button
-                className="continue-button"
-                type="submit"
-                disabled={!canGoToTests}
+                type="button"
+                className="primary-button"
+                disabled={currentQuestion === QUESTIONS.length - 1}
+                onClick={() => {
+                  setCurrentQuestion((previous) => previous + 1);
+                }}
               >
-                GO TO TESTS
-                <span aria-hidden="true">→</span>
+                Next Question →
               </button>
+            </div>
+          </section>
 
-              <span className="continue-caption">
-                {canGoToTests
-                  ? 'All setup requirements are satisfied.'
-                  : 'Complete all requirements to continue.'}
+          <aside className="question-nav-card">
+            <h2>Question navigator</h2>
+            <p>Jump to any question or revisit an answer.</p>
+
+            <div className="question-number-grid">
+              {QUESTIONS.map((item, index) => {
+                const answered = answers[index] !== undefined;
+                const current = currentQuestion === index;
+
+                return (
+                  <button
+                    key={item.topic}
+                    type="button"
+                    className={[
+                      'question-number',
+                      answered ? 'answered' : '',
+                      current ? 'current' : ''
+                    ].filter(Boolean).join(' ')}
+                    aria-label={`Go to question ${index + 1}`}
+                    aria-current={current ? 'step' : undefined}
+                    onClick={() => setCurrentQuestion(index)}
+                  >
+                    {index + 1}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="navigator-legend">
+              <span>
+                <i className="legend-dot answered-dot" />
+                Answered
+              </span>
+
+              <span>
+                <i className="legend-dot unanswered-dot" />
+                Unanswered
               </span>
             </div>
-          </form>
-        </section>
 
-        <p className="note">
-          This prototype displays media locally. It does not record
-          or upload your camera or screen. Student details remain in
-          application memory and are not submitted to a server.
+            <div className="exam-info">
+              <strong>Attempt progress</strong>
+
+              <p>
+                You have answered {answeredCount} out of{' '}
+                {QUESTIONS.length} questions.
+              </p>
+
+              <p>
+                Your selected answers are held in application memory
+                during this session.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="secondary-button back-to-setup"
+              onClick={() => setCurrentView('setup')}
+            >
+              Back to setup
+            </button>
+          </aside>
+        </div>
+
+        <p className="exam-phase-note">
+          Five practice questions · Timer and final submission are
+          implemented in the next phase.
         </p>
       </section>
 
       <footer className="footer">
         <span>ATHENA TEST ENVIRONMENT</span>
-        <span>
-          {isElectron ? 'ELECTRON DESKTOP' : 'BROWSER PREVIEW'} · v0.3.0
-        </span>
+        <span>DSA ASSESSMENT · v0.4.0</span>
       </footer>
     </main>
   );
+}
 }
 
 export default App;
