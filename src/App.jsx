@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 const QUESTIONS = [
   {
     topic: 'Searching',
@@ -56,7 +61,7 @@ const QUESTIONS = [
   }
 ];
 
-
+const EXAM_DURATION_SECONDS = 10 * 60;
 
 function describeMediaError(error, feature) {
   if (error?.name === 'NotAllowedError') {
@@ -95,6 +100,15 @@ function App() {
 
   const cameraVideoRef = useRef(null);
   const screenVideoRef = useRef(null);
+  const [examDeadline, setExamDeadline] = useState(null);
+
+const [timeRemaining, setTimeRemaining] = useState(
+  EXAM_DURATION_SECONDS
+);
+
+const [submitted, setSubmitted] = useState(false);
+const [submissionReason, setSubmissionReason] = useState('');
+const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
 
   const isElectron = Boolean(window.athenaAPI?.isElectron);
 
